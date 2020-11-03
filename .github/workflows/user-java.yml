@@ -31,3 +31,6 @@ jobs:
     - name: Test Maven
       working-directory: apis/user-java
       run: mvn test
+    - name: The job has succeeded 
+      if: ${{failiure() }}
+      run: echo "Fail"
