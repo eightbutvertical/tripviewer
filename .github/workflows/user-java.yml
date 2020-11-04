@@ -33,5 +33,5 @@ jobs:
       working-directory: apis/user-java
       run: mvn test
     - name: The job has succeeded 
-      if: ${{failiure() }}
+      if: ${{failure() }}
       run: echo "Fail"
