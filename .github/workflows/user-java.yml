@@ -12,8 +12,7 @@ on:
     branches: [ master ]
     paths:
     - 'apis/user-java/**'
-  workflow_dispatch:
-  
+  workflow_dispatch:  
 
 jobs:
   build:
@@ -33,5 +32,9 @@ jobs:
       working-directory: apis/user-java
       run: mvn test
     - name: The job has succeeded 
-      if: ${{failiure() }}
-      run: echo "Fail"
+      if: ${{failure() }}
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        title: "Test1"
