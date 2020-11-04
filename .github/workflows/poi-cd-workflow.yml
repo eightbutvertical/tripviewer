@@ -3,13 +3,13 @@
 name: DotNet CD
 
 on: [push, pull_request]
+env:
+  REGISTRY: openhackufq2qk03acr.azurecr.io
+  IMAGE_NAME: devopsoh/api-poi
+  APP_NAME: openhackufq2qk03poi
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: openhackufq2qk03acr.azurecr.io
-      IMAGE_NAME: devopsoh/api-poi
-      APP_NAME: openhackufq2qk03poi
     steps:
       -
         name: Checkout
