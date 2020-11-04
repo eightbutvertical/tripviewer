@@ -1,0 +1,84 @@
+# This workflow will build, test and deploy a DotNet project
+
+name: DotNet CI, CD
+
+on:
+  push:
+    paths:
+    - 'apis/poi/**'
+  pull_request:
+    paths:
+    - 'apis/poi/**'
+  workflow_dispatch:  
+env:
+  REGISTRY: openhackufq2qk03acr.azurecr.io
+  IMAGE_NAME: devopsoh/api-poi
+  APP_NAME: openhackufq2qk03poi
+  PROJECT_PATH: apis/poi/web
+  WORK_DIR: apis/poi
+jobs:
+  buildtestci:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up DotNet
+      uses: actions/setup-dotnet@v1
+    - name: Build with DotNet
+      working-directory: ${{env.WORK_DIR }}
+      run: dotnet build 
+    - name: Test DotNet
+      working-directory: ${{env.WORK_DIR }}
+      run: dotnet test
+    - name: The job has failed 
+      if: ${{failure() }}
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        filename: .github/ISSUE_TEMPLATE2.md
+
+# This job will build docker image for DotNet project
+  dockerbuild:
+    runs-on: ubuntu-latest
+    needs: buildtestci
+    if: github.ref == 'refs/heads/master'
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to ACR
+        uses: docker/login-action@v1 
+        with:
+          registry: ${{env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_TOKEN }}
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ${{env.PROJECT_PATH }}
+          file: ${{env.PROJECT_PATH }}/Dockerfile
+          tags: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ github.sha }}
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+  deploy:
+    runs-on: ubuntu-latest
+    needs: dockerbuild
+    if: github.ref == 'refs/heads/master' 
+    steps:
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{env.APP_NAME }}
+        images: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ github.sha }}
