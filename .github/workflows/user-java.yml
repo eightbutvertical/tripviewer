@@ -31,7 +31,7 @@ jobs:
     - name: Test Maven
       working-directory: apis/user-java
       run: mvn test
-    - name: The job has succeeded 
+    - name: The job has failed 
       if: ${{failure() }}
       uses: JasonEtco/create-an-issue@v2
       env:
