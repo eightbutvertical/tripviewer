@@ -12,6 +12,7 @@ on:
     branches: [ master ]
     paths:
     - 'apis/user-java/**'
+  workflow_dispatch:
   
 
 jobs:
