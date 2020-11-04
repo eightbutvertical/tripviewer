@@ -31,35 +31,10 @@ jobs:
         name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
+        working-directory: apis/poi/web
         with:
           push: true
-          tags: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ GITHUB.SHA }}
-          build-args: |
-            arg1=value1
-            arg2=value2
+          tags: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ github.sha }}
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-
-
-
-
-
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up DotNet
-      uses: actions/setup-dotnet@v1
-    - name: Build with DotNet
-      working-directory: apis/poi
-      run: dotnet build 
-    - name: Test DotNet
-      working-directory: apis/poi
-      run: dotnet test
-    - name: The job has failed 
-      if: ${{failure() }}
-      uses: JasonEtco/create-an-issue@v2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        filename: .github/ISSUE_TEMPLATE2.md
