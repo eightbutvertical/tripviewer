@@ -37,7 +37,7 @@ jobs:
       with:
         filename: .github/ISSUE_TEMPLATE2.md
 
-# This job will build docker image for Node project
+# This job will build docker image for Node project userprofile
   dockerbuild:
     runs-on: ubuntu-latest
     needs: buildtestci
