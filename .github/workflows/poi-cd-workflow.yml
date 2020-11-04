@@ -9,6 +9,7 @@ jobs:
     env:
       REGISTRY: openhackufq2qk03acr.azurecr.io
       IMAGE_NAME: devopsoh/api-poi
+      APP_NAME: openhackufq2qk03poi
     steps:
       -
         name: Checkout
@@ -35,3 +36,16 @@ jobs:
       -
         name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+  deoloy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Login via Azure CLI'
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{env.APP_NAME }}
+        images: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ github.sha }}
+
