@@ -2,11 +2,16 @@
 
 name: DotNet CD
 
-on: [push, pull_request]
+on: 
+  push:
+    branches: [ master ]
+    paths:
+    - 'apis/poi/**'
 env:
   REGISTRY: openhackufq2qk03acr.azurecr.io
   IMAGE_NAME: devopsoh/api-poi
   APP_NAME: openhackufq2qk03poi
+  PROJECT_PATH: apis/poi/web
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,8 +35,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: apis/poi/web
-          file: apis/poi/web/Dockerfile
+          context: ${{env.PROJECT_PATH }}
+          file: ${{env.PROJECT_PATH }}/Dockerfile
           tags: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ github.sha }}
       -
         name: Image digest
