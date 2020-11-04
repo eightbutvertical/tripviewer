@@ -1,0 +1,65 @@
+# This workflow will deploy a DotNet project
+
+name: DotNet CD
+
+on:
+  push:
+    paths:
+    - 'apis/poi/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'apis/poi/**'
+  workflow_dispatch:  
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: openhackufq2qk03acr.azurecr.io
+      IMAGE_NAME: devopsoh/api-poi
+    steps:
+      -
+        name: Login to ACR
+        uses: docker/login-action@v1 
+        with:
+          registry: ${{env.REGISTRY }}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_TOKEN }}
+      -
+        name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: ${{env.REGISTRY }}/${{env.IMAGE_NAME }}:${{ GITHUB.SHA }}
+          build-args: |
+            arg1=value1
+            arg2=value2
+      -
+        name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+
+
+
+
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up DotNet
+      uses: actions/setup-dotnet@v1
+    - name: Build with DotNet
+      working-directory: apis/poi
+      run: dotnet build 
+    - name: Test DotNet
+      working-directory: apis/poi
+      run: dotnet test
+    - name: The job has failed 
+      if: ${{failure() }}
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        filename: .github/ISSUE_TEMPLATE2.md
