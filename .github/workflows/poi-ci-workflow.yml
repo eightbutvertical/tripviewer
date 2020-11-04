@@ -34,3 +34,40 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         filename: .github/ISSUE_TEMPLATE2.md
+
+# This workflow will build a DotNet project
+
+name: DotNet CI with dotnet test
+
+on:
+  push:
+    paths:
+    - 'apis/poi/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+    - 'apis/poi/**'
+  workflow_dispatch:  
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up DotNet
+      uses: actions/setup-dotnet@v1
+    - name: Build with DotNet
+      working-directory: apis/poi
+      run: dotnet build 
+    - name: Test DotNet
+      working-directory: apis/poi
+      run: dotnet test
+    - name: The job has failed 
+      if: ${{failure() }}
+      uses: JasonEtco/create-an-issue@v2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        filename: .github/ISSUE_TEMPLATE2.md
