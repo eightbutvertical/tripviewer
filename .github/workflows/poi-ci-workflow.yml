@@ -4,7 +4,6 @@ name: DotNet CI with dotnet test
 
 on:
   push:
-    branches: [ master ]
     paths:
     - 'apis/poi/**'
   pull_request:
