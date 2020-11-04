@@ -37,4 +37,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        title: "Test1"
+        filename: .github/ISSUE_TEMPLATE2.md
