@@ -14,7 +14,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master' && github.actor.role == 'Maintainer'
+    if: github.ref == 'refs/heads/master' && github.actor == 'CodeUnicornMartha'
     steps:
       - name: "Login via Azure CLI"
         uses: azure/login@v1
