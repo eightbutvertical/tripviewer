@@ -22,6 +22,7 @@ jobs:
       - name: Check if production is healthy
         id: healthcheck
         uses: mydea/action-wait-for-api@v1
+        continue-on-error: true
         with:
           url: "https://${{ env.APP_NAME }}.azurewebsites.net/api/healthcheck/user"
           expected-response-field: "status"
