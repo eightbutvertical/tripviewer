@@ -1,0 +1,43 @@
+# This workflow will build, test and deploy a NodeJS project
+
+name: Deploy UserProfile staging to production
+
+on:
+  workflow_dispatch:
+env:
+  REGISTRY: openhackufq2qk03acr.azurecr.io
+  IMAGE_NAME: devopsoh/api-userprofile
+  APP_NAME: openhackufq2qk03userprofile
+  PROJECT_PATH: apis/userprofile
+  WORK_DIR: apis/userprofile
+  RESOURCE_GROUP: openhackufq2qk03rg
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' && github.actor.role == 'Maintainer'
+    steps:
+      - name: "Login via Azure CLI"
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Wait for deployment to show 
+        uses: mydea/action-wait-for-api@v1
+        with:
+          url: "https://${{ env.APP_NAME }}-staging.azurewebsites.net/api/healthcheck/user"
+          expected-response-field: "version"
+          expected-response-field-value: ${{ github.sha }}
+          interval: 1
+      - run: az webapp deployment slot swap --name $APP_NAME --resource-group $RESOURCE_GROUP --slot staging --target-slot production
+      - name: Check if production is healthy
+        id: health-check
+        uses: mydea/action-wait-for-api@v1
+        continue-on-error: true
+        with:
+          url: "https://${{ env.APP_NAME }}.azurewebsites.net/api/healthcheck/user"
+          expected-response-field: "status"
+          expected-response-field-value: "healthy"
+          interval: 10
+          timeout: 120
+      - name: Rollback on fail
+        if: steps.health-check.outcome == 'failure'
+        run: az webapp deployment slot swap --name $APP_NAME --resource-group $RESOURCE_GROUP --slot staging --target-slot production  
