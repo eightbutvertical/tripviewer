@@ -103,6 +103,6 @@ jobs:
           interval: 10
           timeout: 120
       - name: Rollback on fail
-        if: ${{ steps.health-check.outcome == "failure" }}
+        if: ${{ steps.health-check.outcome == failure }}
         run: az webapp deployment slot swap --name $APP_NAME --resource-group $RESOURCE_GROUP --slot staging --target-slot production  
 
