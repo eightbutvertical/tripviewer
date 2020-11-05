@@ -46,7 +46,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set Version
-        run: sed -i 's/!!version!!/$VERSION/g' data/healthcheck/user.js
+        run: sed -i 's/!!version!!/'"$VERSION"'/g' data/healthcheck/user.js
         env:
           VERSION: ${{ github.sha }}
         working-directory: ${{env.WORK_DIR }}
