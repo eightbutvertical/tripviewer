@@ -20,15 +20,15 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Check if production is healthy
-        id: healthcheck
+        id: health-check
         uses: mydea/action-wait-for-api@v1
         continue-on-error: true
         with:
           url: "https://${{ env.APP_NAME }}.azurewebsites.net/api/healthcheck/user"
           expected-response-field: "status"
-          expected-response-field-value: "not-healthy-to-trigger-rollback"
+          expected-response-field-value: "healthy"
           interval: 10
           timeout: 20
       - name: Rollback on fail
-        if: steps.healthcheck.outcome == 'failure'
+        if: steps.health-check.outcome == 'failure'
         run: az webapp deployment slot swap --name $APP_NAME --resource-group $RESOURCE_GROUP --slot staging --target-slot production  
